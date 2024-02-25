@@ -4,6 +4,7 @@ from flask import Flask
 from flask import make_response
 from slackeventsapi import SlackEventAdapter
 from waitress import serve
+from flask_cors import CORS 
 import threading
 import autogen
 from langchain_community.tools.gmail.utils import (
@@ -25,6 +26,7 @@ import pytz
 
 load_dotenv(override=True)
 app = Flask(__name__)
+CORS(app) 
 
 eventAdapter = SlackEventAdapter(
     os.environ["SLACK_SIGNING_SECRET"], "/slack/events", app
