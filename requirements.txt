@@ -32,6 +32,7 @@ feedparser==6.0.10
 filetype==1.2.0
 FLAML==2.1.1
 Flask==2.3.3
+Flask-Cors==4.0.0
 frozenlist==1.4.1
 google-api-core==2.16.2
 google-api-python-client==2.118.0
@@ -70,6 +71,12 @@ nltk==3.8.1
 numpy==1.26.3
 O365==2.0.33
 oauthlib==3.2.2
+openai==1.10.0
+opentelemetry-api==1.22.0
+opentelemetry-exporter-otlp-proto-common==1.22.0
+opentelemetry-exporter-otlp-proto-http==1.22.0
+opentelemetry-proto==1.22.0
+opentelemetry-sdk==1.22.0
 opentelemetry-semantic-conventions==0.43b0
 packaging==23.2
 protobuf==4.25.2
