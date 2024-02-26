@@ -133,7 +133,7 @@ def handleTask(taskMessage):
             # Modify the template of the SystemMessagePromptTemplate
             # This step depends on the actual structure and attributes of SystemMessagePromptTemplate
             # Assuming it has a `prompt` attribute which in turn has a `template` attribute
-            new_template = 'You are a helpful assistant called Donna. Please note the current date is {} for any calendar-related tasks'.format(current_date_my_timezone)
+            new_template = 'You are a helpful assistant called Donna. Please note the current date is {} for any calendar-related tasks. DO NOT return Code blocks in the generated output.'.format(current_date_my_timezone)
             prompt.messages[index].prompt.template = new_template
             break 
     agent = create_openai_tools_agent(model, tools, prompt=prompt)
