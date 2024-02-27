@@ -25,6 +25,7 @@ from dotenv import load_dotenv
 from langchain_community.tools import DuckDuckGoSearchRun
 from custom_functions.calender_functions import CalendarToolkit
 from datetime import datetime
+from custom_functions.rag_functions import retriever_tool
 import pytz
 
 load_dotenv(override=True)
@@ -122,6 +123,7 @@ def handleTask(taskMessage):
     tools = []
     tools = tools + toolkit.get_tools() + calender_toolkit.get_tools()
     tools.append(search_tool)
+    tools.append(retriever_tool)
     prompt = hub.pull("hwchase17/openai-tools-agent")
 
     india_timezone = pytz.timezone(os.environ["TIMEZONE"])

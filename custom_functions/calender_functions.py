@@ -12,6 +12,7 @@ from langchain_community.agent_toolkits.base import BaseToolkit
 from langchain_community.tools import BaseTool
 from googleapiclient.discovery import Resource
 from langchain_community.tools.gmail.utils import build_resource_service
+
 from dotenv import load_dotenv
 load_dotenv(override=True)
 
