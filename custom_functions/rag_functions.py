@@ -9,7 +9,7 @@ from langchain_community.document_loaders import PyPDFLoader, TextLoader
 import docx2txt
 
 
-loader = TextLoader("./entourage_business_specific_docs/sales_call_script.txt", autodetect_encoding=True)
+loader = TextLoader("./rag_tools_reference/acme_investment_policies.txt", autodetect_encoding=True)
 documents = loader.load()
 text_splitter = CharacterTextSplitter(chunk_size=1500, chunk_overlap=200)
 texts = text_splitter.split_documents(documents)
@@ -19,8 +19,8 @@ db = FAISS.from_documents(texts, embeddings)
 retriever = db.as_retriever()
 retriever_tool = create_retriever_tool(
     retriever,
-    "search_sales_call_script_document",
-    "Searches and returns information from the Sales Call Script guidelines for The Entourage",
+    "search_acme_investment_policies_document",
+    "Searches and returns information about policies for Acme Investments",
 )
 retriever_tools_array = [retriever_tool]
 
