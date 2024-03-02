@@ -39,7 +39,7 @@ eventAdapter = SlackEventAdapter(
 client = slack.WebClient(token=os.environ["SLACK_BOT_TOKEN"])
 
 bot = client.api_call("auth.test")["user_id"]
-
+global_prompt = hub.pull("hwchase17/openai-tools-agent")
 
 # The api endpoint for the agentsy mvp demo
 @app.route('/donnaChat', methods=['POST'])
@@ -124,8 +124,8 @@ def handleTask(taskMessage):
     tools = tools + toolkit.get_tools() + calender_toolkit.get_tools()
     tools.append(search_tool)
     tools.append(retriever_tool)
-    prompt = hub.pull("hwchase17/openai-tools-agent")
 
+    prompt = global_prompt
     india_timezone = pytz.timezone(os.environ["TIMEZONE"])
     current_datetime_my_timezone = datetime.now(india_timezone)
     current_date_my_timezone = current_datetime_my_timezone.date()
