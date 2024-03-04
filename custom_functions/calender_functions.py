@@ -7,7 +7,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from langchain_core.pydantic_v1 import BaseModel, Field
 from typing import Type
-from typing import List, Union
+from typing import List, Union, Optional
 from langchain_community.agent_toolkits.base import BaseToolkit
 from langchain_community.tools import BaseTool
 from googleapiclient.discovery import Resource
@@ -49,13 +49,14 @@ class CreateCalendarEventSchema(BaseModel):
     location: str = Field(description="Where the event will take place")
     description: str = Field(description="A description of the event")
     startDate: str = Field(
-        description="Starting date for the event in ISO 8601 standard with Australia Timezone"
+        description="Starting date for the event in ISO 8601 standard with Australia Sydney Timezone"
     )
-    endDate: str = Field(description="Ending date for the event in ISO 8601 standard with Australia Timezone")
-    attendees: Union[str, List[str]] = Field(
+    endDate: str = Field(description="Ending date for the event in ISO 8601 standard with Australia Sydney Timezone")
+    attendees: Optional[Union[str, List[str]]] = Field(
         ...,
         description="The list of attendees.",
     )
+    recurrence: Optional[str] = Field(description="Recurrence rules for repeating events, following iCalendar RRULE format.")
 
 
 class CreateCalendarEventTool(BaseTool):
@@ -74,15 +75,17 @@ class CreateCalendarEventTool(BaseTool):
         description: str,
         startDate: str,
         endDate: str,
-        attendees: Union[str, List[str]],
+        attendees: Optional[Union[str, List[str]]] = None,
+        recurrence: Optional[str] = None
     ):
         service = build("calendar", "v3", credentials=authenticate())
         if isinstance(attendees, str):
             # If there's only one attendee, wrap it in a list
             attendees = [{'email': attendees}]
-        else:
+        elif isinstance(attendees, list):
             # Convert each email address in the list to the required dictionary format
             attendees = [{'email': email} for email in attendees]
+
 
         event = {
         "summary": summary,
@@ -90,7 +93,11 @@ class CreateCalendarEventTool(BaseTool):
         "description": description,
         "start": {"dateTime": startDate, "timeZone": TIMEZONE},
         "end": {"dateTime": endDate, "timeZone": TIMEZONE},
-        "attendees": attendees
+        "attendees": attendees,
+        "recurrence": 
+        [
+            recurrence
+        ]
     }
         event = service.events().insert(calendarId="primary", body=event).execute()
         return "Event created: %s" % (event.get("htmlLink"))

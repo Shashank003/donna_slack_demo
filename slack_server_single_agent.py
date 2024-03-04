@@ -129,13 +129,15 @@ def handleTask(taskMessage):
     india_timezone = pytz.timezone(os.environ["TIMEZONE"])
     current_datetime_my_timezone = datetime.now(india_timezone)
     current_date_my_timezone = current_datetime_my_timezone.date()
-    print(current_date_my_timezone)
+    current_time_my_timezone = current_datetime_my_timezone.strftime('%H:%M:%S')
+    print("Current time is:            ")
+    print(current_time_my_timezone)
     for index, message in enumerate(prompt.messages):
         if isinstance(message, SystemMessagePromptTemplate):
             # Modify the template of the SystemMessagePromptTemplate
             # This step depends on the actual structure and attributes of SystemMessagePromptTemplate
             # Assuming it has a `prompt` attribute which in turn has a `template` attribute
-            new_template = 'You are a helpful assistant called Donna. Please note the current date is {} for any calendar-related tasks. DO NOT return Code blocks in the generated output.'.format(current_date_my_timezone)
+            new_template = 'You are a helpful assistant called Donna. Please note the current date is {} and the time is {} for any calendar-related tasks. DO NOT return Code blocks in the generated output.'.format(current_date_my_timezone,current_time_my_timezone)
             prompt.messages[index].prompt.template = new_template
             break 
     agent = create_openai_tools_agent(model, tools, prompt=prompt)
