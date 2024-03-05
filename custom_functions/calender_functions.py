@@ -12,6 +12,8 @@ from langchain_community.agent_toolkits.base import BaseToolkit
 from langchain_community.tools import BaseTool
 from googleapiclient.discovery import Resource
 from langchain_community.tools.gmail.utils import build_resource_service
+from dateutil import parser
+from datetime import datetime
 
 from dotenv import load_dotenv
 load_dotenv(override=True)
@@ -105,6 +107,12 @@ class CreateCalendarEventTool(BaseTool):
 
 class ViewCalendarEventSchema(BaseModel):
     """Input for ViewCalendarEventsTool"""
+    searchTerm : Optional[str] = Field(description="""Free text search terms to find events that match these terms in the following fields for events in google calendar:
+                             a) summary b) description c) location d) attendee's displayName e) attendee's email f) organizer's displayName g) organizer's email""")
+    timeMin: Optional[str] = Field(description="Lower bound (exclusive) for an event's end time to filter by. Must be an RFC3339 timestamp with mandatory time zone offset, for example, 2011-06-03T10:00:00-07:00, 2011-06-03T10:00:00Z.")
+    timeMax : Optional[str] = Field(description="Upper bound (exclusive) for an event's start time to filter by. Must be an RFC3339 timestamp with mandatory time zone offset, for example, 2011-06-03T10:00:00-07:00, 2011-06-03T10:00:00Z.")
+
+
 
 class ViewCalendarEventsTool(BaseTool):
     """A tool for retrieving Google Calendar events and meetings."""
@@ -116,6 +124,42 @@ class ViewCalendarEventsTool(BaseTool):
     )
     args_schema: Type[ViewCalendarEventSchema] = ViewCalendarEventSchema
 
+    def _run(
+            self,
+            searchTerm : Optional[str] = None,
+            timeMin : Optional[str] = None,
+            timeMax: Optional[str] = None
+    ):
+
+        if timeMax and timeMin == None:
+            return "An error has occured since you did not provide a lower boundation time"
+
+        service = build("calendar", "v3", credentials=authenticate())
+        # event = {
+        #     "maxAttendees" : 5,
+        #     "maxResults": 20,
+        #     "orderBy": "startTime",
+        #     "singleEvents": True,
+        #     "q": searchTerm,
+        #     "timeMin": time_min_dt,
+        #     "timeMax": time_max_dt
+        # }
+
+        events_result = service.events().list(
+            calendarId="primary",
+            timeMin=timeMin,
+            timeMax=timeMax,
+            maxResults=30,
+            singleEvents=True,
+            orderBy="startTime",
+            q=searchTerm
+        ).execute()
+        events = events_result.get('items', [])
+        print(events)
+        if not events:
+            return 'No upcoming events found.'
+        else:
+            return events
     
 
 class CalendarToolkit(BaseToolkit):
@@ -141,8 +185,19 @@ class CalendarToolkit(BaseToolkit):
         """Get the tools in the toolkit."""
         return [
             CreateCalendarEventTool(),
+            ViewCalendarEventsTool(),
             # Other calendar tools can be added here
         ]
+
+
+def convert_to_datetime(date_str: Optional[str]) -> Optional[datetime]:
+    """Utility function to convert a date string to a datetime object."""
+    if date_str:
+        try:
+            return parser.parse(date_str)
+        except ValueError as e:
+            raise ValueError(f"Error parsing date string: {date_str}. Error: {e}")
+    return None
 
 
 if __name__ == "__main__":
