@@ -11,9 +11,10 @@ from langchain_community.tools.gmail.utils import (
     build_resource_service,
     get_gmail_credentials,
 )
+from langchain_community.utilities import GoogleSerperAPIWrapper
 from langchain_core.prompts.chat import ChatPromptTemplate
 from langchain_community.agent_toolkits import GmailToolkit
-from langchain.agents import AgentExecutor, create_openai_tools_agent
+from langchain.agents import AgentExecutor, create_openai_tools_agent, load_tools
 from langchain import hub
 from langchain_openai import ChatOpenAI
 from langchain.prompts.chat import (
@@ -119,11 +120,14 @@ def handleTask(taskMessage):
     api_resource = build_resource_service(credentials=credentials)
     toolkit = GmailToolkit(api_resource=api_resource)
     calender_toolkit = CalendarToolkit()
-    search_tool = DuckDuckGoSearchRun()
-    tools = []
+    # search_tool = DuckDuckGoSearchRun()
+    tools = load_tools(["google-serper"])
+    # serper_search_tool = Tool(name="Tool that queries the Google search api",func=search.run,description="Useful when you need to search the internet for current events")
+    # tools = []
     tools = tools + toolkit.get_tools() + calender_toolkit.get_tools()
-    tools.append(search_tool)
+    # tools.append(search_tool)
     tools.append(retriever_tool)
+    # tools.append(serper_search_tool)
 
     prompt = global_prompt
     india_timezone = pytz.timezone(os.environ["TIMEZONE"])
@@ -153,4 +157,4 @@ def handleTask(taskMessage):
 
 if __name__ == "__main__":
     print("starting server")
-    serve(app, host="0.0.0.0", port=50100, threads=1)
+    serve(app, host="0.0.0.0", port=8080, threads=1)
