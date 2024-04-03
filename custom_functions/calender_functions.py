@@ -51,12 +51,12 @@ class CreateCalendarEventSchema(BaseModel):
     location: str = Field(description="Where the event will take place")
     description: str = Field(description="A description of the event")
     startDate: str = Field(
-        description="Starting date for the event in ISO 8601 standard with Australia Sydney Timezone"
+        description="Starting date for the event in ISO 8601 standard with Australia Sydney Timezone UTC +11"
     )
-    endDate: str = Field(description="Ending date for the event in ISO 8601 standard with Australia Sydney Timezone")
+    endDate: str = Field(description="Ending date for the event in ISO 8601 standard with Australia Sydney Timezone UTC +11")
     attendees: Optional[Union[str, List[str]]] = Field(
         ...,
-        description="The list of attendees.",
+        description="The list of attendee emails provided.",
     )
     recurrence: Optional[str] = Field(description="Recurrence rules for repeating events, following iCalendar RRULE format.")
 
@@ -101,6 +101,8 @@ class CreateCalendarEventTool(BaseTool):
             recurrence
         ]
     }
+        print("Event is")
+        print(event)
         event = service.events().insert(calendarId="primary", body=event).execute()
         return "Event created: %s" % (event.get("htmlLink"))
 
